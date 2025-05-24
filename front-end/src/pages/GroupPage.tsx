@@ -1,20 +1,38 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchGroups } from "../api/groupAPI.ts";
+import type { Group, GroupPost } from "../types/Group.ts";
+import NewGroupForm from "../components/newGroupForm/NewGroupForm.tsx";
+import { postGroup } from "../api/groupAPI.ts";
 import "./GroupPage.css";
-import type {Group}  from "../types/Group.ts";
 
 export function GroupList() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetchGroups().then((data) => {setGroups(data);})
+    fetchGroups().then((data) => { setGroups(data); })
   }, []);
+
+  function handleCreate(newGroupPost: GroupPost) {
+    postGroup(newGroupPost)
+      .then((newGroup) => {
+        setGroups((prevGroups) => [...prevGroups, newGroup])
+      })
+      .catch((error) => {
+        console.error("Failed to add group:", error);
+      });
+    setOpen(false);
+  }
 
   return (
     <div className="groupContainer">
       <div className="list-group-item d-flex justify-content-between pb-3 mx-3">
         <p className="h3">Groups</p>
-        <button className="btn btn-primary">Add new</button>
+        <button
+          onClick={(() => setOpen(true))}
+          className="btn btn-primary">
+          Add new
+        </button>
       </div>
 
       <ul className="list-group">
@@ -25,6 +43,15 @@ export function GroupList() {
           </li>
         ))}
       </ul>
+
+      {open &&
+        (
+          <>
+            <div className="dark-overlay" />
+            <NewGroupForm onCreate={handleCreate} onCancel={() => setOpen(false)} />
+          </>
+        )}
+
     </div>
   );
 }

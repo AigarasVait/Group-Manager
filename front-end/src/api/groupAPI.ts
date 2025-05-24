@@ -1,6 +1,6 @@
 import { API_GROUPS_ENDPOINT } from "../constants/apiEndpoints";
 import { apiFetch } from "./apiFetch";
-import type { Group } from "../types/Group";
+import type { GroupPost, Group } from "../types/Group";
 
 export async function fetchGroups() {
     try {
@@ -15,7 +15,7 @@ export async function fetchGroups() {
     }
 }
 
-export async function postGroup(groupData: Omit<Group, "id">): Promise<Group> {
+export async function postGroup(groupData: GroupPost): Promise<Group> {
     try {
         const response = await apiFetch(API_GROUPS_ENDPOINT, {
             method: "POST",
@@ -34,10 +34,8 @@ export async function postGroup(groupData: Omit<Group, "id">): Promise<Group> {
     }
 }
 
-
-
 export async function postAddGroup(
-    groupData: Omit<Group, "id">,
+    groupData: GroupPost,
     setGroups: React.Dispatch<React.SetStateAction<Group[]>>
 ): Promise<void> {
     try {
