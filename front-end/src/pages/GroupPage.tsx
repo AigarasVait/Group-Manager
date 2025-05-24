@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { apiFetch } from "../api/apiFetch";
+import { fetchGroups } from "../api/groupAPI.ts";
 import "./GroupPage.css";
 
 interface group {
@@ -10,24 +10,12 @@ interface group {
 
 export function GroupList() {
   const [groups, setGroups] = useState<group[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch("/groups")   // call your backend API endpoint
-      .then((res) => res.json())
-      .then((data) => {
-        setGroups(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch groups", error);
-        setLoading(false);
-      });
+    fetchGroups().then((data) => {setGroups(data);})
   }, []);
 
-  if (loading) {
-    return React.createElement("div", { style: { color: "black" } }, "Loading...");
-  }
+
 
   return (
     <div className="groupContainer">

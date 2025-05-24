@@ -14,7 +14,7 @@ public class GroupsController : ControllerBase
         _db = db;
     }
 
-    // GET: api/groups
+
     [HttpGet]
     public async Task<IActionResult> GetGroups()
     {
@@ -22,7 +22,6 @@ public class GroupsController : ControllerBase
         return Ok(groups);
     }
 
-    // POST: api/groups
     [HttpPost]
     public async Task<IActionResult> CreateGroup([FromBody] Group group)
     {
