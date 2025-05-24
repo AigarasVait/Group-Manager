@@ -1,15 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { GroupList } from './pages/GroupPage.tsx'
-import Navbar from './components/navbar/Navbar.tsx'
-import LoginPage from './pages/LoginPage';
+import { AuthProvider } from './context/AuthContext.tsx';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* <Navbar />
-    <GroupList /> */}
-    <LoginPage />
+    <AuthProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </AuthProvider>
   </StrictMode>,
 )

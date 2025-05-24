@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import { fetchGroups } from "../api/groupAPI.ts";
+import { useNavigate } from "react-router-dom";
 import type { Group, GroupPost } from "../types/Group.ts";
 import NewGroupForm from "../components/newGroupForm/NewGroupForm.tsx";
 import { postGroup } from "../api/groupAPI.ts";
+import { useAuth } from "../context/AuthContext.tsx";
 import "./GroupPage.css";
 
 export function GroupList() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [open, setOpen] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login", { replace: true });
+    }
     fetchGroups().then((data) => { setGroups(data); })
-  }, []);
+  }, [isLoggedIn, navigate]);
 
   function handleCreate(newGroupPost: GroupPost) {
     postGroup(newGroupPost)

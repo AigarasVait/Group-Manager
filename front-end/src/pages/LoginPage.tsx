@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./LoginPage.css";
 import { validateLogin } from "../api/memberAPI";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 //  This funtion is a simple login page component that allows users to enter their credentials
 //  and submit them for validation. It uses React hooks for state management 
@@ -17,16 +19,17 @@ export default function LoginPage() {
         username: '',
         password: ''
     });
-    const [userId, setUserId] = useState<number>(-1);
     const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const SignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         validateLogin(credentials)
             .then((response) => {
                 if (response.id) {
-                    setUserId(response.id);
-                    window.location.href = "/";
+                    login(response.id); 
+                    navigate("/");
                 } else {
                     setErrorMessage("Invalid credentials, please try again.");
                 }
@@ -65,7 +68,7 @@ export default function LoginPage() {
 
                     <div>
                         <button type="submit" className="btn btn-primary">Sign in</button>
-                        <button type="button" className="btn btn-secondary ms-3">Make new</button>
+                        <button type="button" className="btn btn-secondary ms-3">Register</button>
                     </div>
 
                 </form>
