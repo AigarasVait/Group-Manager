@@ -14,7 +14,7 @@ public class GroupsController : ControllerBase
         _db = db;
     }
 
-    // GET: api/groups
+
     [HttpGet]
     public async Task<IActionResult> GetGroups()
     {
@@ -22,10 +22,24 @@ public class GroupsController : ControllerBase
         return Ok(groups);
     }
 
-    // POST: api/groups
     [HttpPost]
-    public async Task<IActionResult> CreateGroup([FromBody] Group group)
+    public async Task<IActionResult> CreateGroup([FromBody] GroupPost groupPost)
     {
+        var group = new Group
+        {
+            Name = groupPost.Name
+        };
+
+        var creator = await _db.Users.FindAsync(groupPost.CreatorId);
+        if (creator != null)
+        {
+            group.Members = new List<User> { creator };
+        }
+        else
+        {
+            return BadRequest("Creator user not found.");
+        }
+
         _db.Groups.Add(group);
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetGroups), new { id = group.Id }, group);

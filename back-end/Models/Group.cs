@@ -14,3 +14,15 @@ public class Group
     public List<User> Members { get; set; } = [];
     public List<Transaction> Transactions { get; set; } = [];
 }
+
+/*
+    This class represents a post that can be made in a group.
+    It contains the name of the post and the ID of the user who created it.
+    
+    The GroupPost class is used to represent posts made by users.
+*/
+public class GroupPost
+{
+    public string Name { get; set; } = "";
+    public int CreatorId { get; set; }
+}

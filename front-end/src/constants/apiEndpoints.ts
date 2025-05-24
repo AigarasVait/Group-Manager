@@ -1,0 +1,1 @@
+export const API_GROUPS_ENDPOINT = '/api/groups';
