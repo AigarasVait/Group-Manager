@@ -1,5 +1,5 @@
 const backendPort = import.meta.env.VITE_API_BASE_URL;
 
 export function apiFetch(path: string, options?: RequestInit) {
-  return fetch(`${backendPort}/api${path}`, options);
+  return fetch(`${backendPort}${path}`, options);
 }

@@ -1,21 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { fetchGroups } from "../api/groupAPI.ts";
 import "./GroupPage.css";
-
-interface group {
-  id: number;
-  name: string;
-  balance: number;
-}
+import type {Group}  from "../types/Group.ts";
 
 export function GroupList() {
-  const [groups, setGroups] = useState<group[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
 
   useEffect(() => {
     fetchGroups().then((data) => {setGroups(data);})
   }, []);
-
-
 
   return (
     <div className="groupContainer">
