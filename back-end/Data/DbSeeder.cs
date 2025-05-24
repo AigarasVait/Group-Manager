@@ -15,7 +15,7 @@ namespace back_end.Data
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var admin = new User { Name = "Aigaras Vaitkus", Username = "admin" };
+                var admin = new User { Name = "Aigaras Vaitkus", Username = "admin", Password = "123" };
                 if (!db.Users.Any())
                 {
                     
