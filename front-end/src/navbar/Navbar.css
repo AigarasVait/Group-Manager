@@ -1,0 +1,12 @@
+.navbarContainer{
+    width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height:50px;
+}
+
+.button-container{
+    padding-left:6%;
+
+}
