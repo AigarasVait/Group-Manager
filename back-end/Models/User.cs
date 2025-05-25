@@ -1,4 +1,5 @@
 namespace back_end.Models;
+using System.Text.Json.Serialization;
 
 /*
     This class represents a user in the system.
@@ -11,6 +12,8 @@ public class User
     public string Name { get; set; } = "";
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
+
+    [JsonIgnore]
     public List<Group> Groups { get; set; } = [];
 }
 
