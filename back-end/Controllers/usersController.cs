@@ -42,26 +42,20 @@ public class UsersController : ControllerBase
         }
     }
 
-    // [HttpPost("create")]
-    // public async Task<IActionResult> CreateUser([FromBody] GroupPost groupPost)
-    // {
-    //     var group = new Group
-    //     {
-    //         Name = groupPost.Name
-    //     };
-
-    //     var creator = await _db.Users.FindAsync(groupPost.CreatorId);
-    //     if (creator != null)
-    //     {
-    //         group.Members = new List<User> { creator };
-    //     }
-    //     else
-    //     {
-    //         return BadRequest("Creator user not found.");
-    //     }
-
-    //     _db.Groups.Add(group);
-    //     await _db.SaveChangesAsync();
-    //     return CreatedAtAction(nameof(GetGroups), new { id = group.Id }, group);
-    // }
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateUser([FromBody] User user)
+    {
+        var duplicate = await _db.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
+        if (duplicate == null)
+        {
+            _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+        var userDto = _mapper.Map<UserDto>(user);
+        return Created("", userDto);
+        }
+        else
+        {
+            return BadRequest("Username taken.");
+        }
+    }
 }

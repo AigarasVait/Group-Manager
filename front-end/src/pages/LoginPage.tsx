@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./LoginPage.css";
-import { validateLogin } from "../api/memberAPI";
+import { validateLogin, createNewLogin } from "../api/memberAPI";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -30,13 +30,27 @@ export default function LoginPage() {
                 if (response.id) {
                     login(response.id); 
                     navigate("/");
-                } else {
-                    setErrorMessage("Invalid credentials, please try again.");
-                }
+                } 
             })
             .catch((error) => {
                 console.error(error);
                 setErrorMessage("Invalid username or password, please try again.");
+            });
+        return false;
+    }
+
+    const Register = async (e: React.FormEvent) => {
+        e.preventDefault();
+        createNewLogin(credentials)
+            .then((response) => {
+                if (response.id) {
+                    login(response.id); 
+                    navigate("/");
+                } 
+            })
+            .catch((error) => {
+                console.error(error);
+                setErrorMessage("Registration failed, please try again.");
             });
         return false;
     }
@@ -68,7 +82,7 @@ export default function LoginPage() {
 
                     <div>
                         <button type="submit" className="btn btn-primary">Sign in</button>
-                        <button type="button" className="btn btn-secondary ms-3">Register</button>
+                        <button type="button" onClick={Register} className="btn btn-secondary ms-3">Register</button>
                     </div>
 
                 </form>
