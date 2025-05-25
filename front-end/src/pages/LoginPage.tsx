@@ -50,7 +50,7 @@ export default function LoginPage() {
             })
             .catch((error) => {
                 console.error(error);
-                setErrorMessage("Registration failed, please try again.");
+                setErrorMessage("Registration failed: username taken.");
             });
         return false;
     }

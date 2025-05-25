@@ -6,5 +6,5 @@ export interface Group {
 
 export interface GroupPost {
   name: string;
-  creatorId: number;
+  creatorId: number | null;
 }

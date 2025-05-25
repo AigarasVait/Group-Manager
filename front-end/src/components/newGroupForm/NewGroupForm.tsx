@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import type { GroupPost } from "../../types/Group";
 import "./NewGroupForm.css";
 
@@ -9,13 +10,14 @@ interface NewGroupFormProps {
 
 export default function NewGroupForm({ onCreate, onCancel }: NewGroupFormProps) {
     const [groupName, setGroupName] = useState("");
+    const { userId } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const newGroupPost: GroupPost = {
             name: groupName,
-            creatorId: 1
+            creatorId: userId
         };
 
         onCreate(newGroupPost);

@@ -19,11 +19,20 @@ public class GroupsController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetGroups()
+public async Task<IActionResult> GetGroups([FromQuery] int userId)
+{
+    if (userId <= 0)
     {
-        var groups = await _db.Groups.ToListAsync();
-        return Ok(groups);
+        return BadRequest($"Invalid user ID: {userId}");
     }
+
+    var groups = await _db.Groups
+        .Include(g => g.Members)
+        .Where(g => g.Members.Any(m => m.Id == userId))
+        .ToListAsync();
+    var groupsDto = _mapper.Map<List<GroupDto>>(groups);
+    return Ok(groupsDto);
+}
 
     [HttpPost]
     public async Task<IActionResult> CreateGroup([FromBody] GroupPost groupPost)
@@ -32,11 +41,10 @@ public class GroupsController : ControllerBase
         {
             Name = groupPost.Name
         };
-
         var creator = await _db.Users.FindAsync(groupPost.CreatorId);
         if (creator != null)
         {
-            group.Members = new List<User> { creator };
+            group.Members = [creator];
         }
         else
         {

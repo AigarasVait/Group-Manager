@@ -1,64 +1,48 @@
-import { useEffect, useState } from "react";
-import { fetchGroups } from "../api/groupAPI.ts";
-import { useNavigate } from "react-router-dom";
-import type { Group, GroupPost } from "../types/Group.ts";
-import NewGroupForm from "../components/newGroupForm/NewGroupForm.tsx";
-import { postGroup } from "../api/groupAPI.ts";
-import { useAuth } from "../context/AuthContext.tsx";
-import "./GroupPage.css";
+import { useState, useEffect} from "react";
+import { useParams } from 'react-router-dom';
 
-export function GroupList() {
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [open, setOpen] = useState(false);
-  const { isLoggedIn } = useAuth();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login", { replace: true });
-    }
-    fetchGroups().then((data) => { setGroups(data); })
-  }, [isLoggedIn, navigate]);
+export default function GroupPage() {
+    const { groupId } = useParams();
+    const [open, setOpen] = useState(false);
+    useEffect(() => {
 
-  function handleCreate(newGroupPost: GroupPost) {
-    postGroup(newGroupPost)
-      .then((newGroup) => {
-        setGroups((prevGroups) => [...prevGroups, newGroup])
-      })
-      .catch((error) => {
-        console.error("Failed to add group:", error);
-      });
-    setOpen(false);
-  }
+    }, []);
 
-  return (
-    <div className="groupContainer">
-      <div className="list-group-item d-flex justify-content-between pb-3 mx-3">
-        <p className="h3">Groups</p>
-        <button
-          onClick={(() => setOpen(true))}
-          className="btn btn-primary">
-          Add new
-        </button>
-      </div>
 
-      <ul className="list-group">
-        {groups.map((group) => (
-          <li key={group.id} className="list-group-item d-flex justify-content-between">
-            <span className="fs-5">{group.name}</span>
-            <button className="btn btn-secondary">View</button>
-          </li>
-        ))}
-      </ul>
 
-      {open &&
-        (
-          <>
-            <div className="dark-overlay" />
-            <NewGroupForm onCreate={handleCreate} onCancel={() => setOpen(false)} />
-          </>
-        )}
+    return (
+        <div className="groupContainer">
+            
+            <div className="list-group-item d-flex justify-content-between pb-3 mx-3">
+                <p className="h3">Groups</p>
+                <button
+                    onClick={(() => setOpen(true))}
+                    className="btn btn-primary">
+                    Add new
+                </button>
+            </div>
 
-    </div>
-  );
+            <ul className="list-group">
+                {/* {groups.map((group) => (
+                    <li key={group.id} className="list-group-item d-flex justify-content-between">
+                        <span className="fs-5">{group.name}</span>
+                        <button className="btn btn-secondary">View</button>
+                    </li>
+                ))} */}
+            </ul>
+
+            {open &&
+                (
+                    <>
+                        <div className="dark-overlay" />
+                        {/* <NewGroupForm onCreate={handleCreate} onCancel={() => setOpen(false)} /> */}
+                    </>
+                )}
+
+        </div>
+    );
 }
+
+
+

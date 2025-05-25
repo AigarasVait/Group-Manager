@@ -1,4 +1,5 @@
 namespace back_end.Models;
+using System.Text.Json.Serialization;
 
 /*
     This class represents a group in the system.
@@ -11,7 +12,9 @@ public class Group
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
+    
     public List<User> Members { get; set; } = [];
+    
     public List<Transaction> Transactions { get; set; } = [];
 }
 
