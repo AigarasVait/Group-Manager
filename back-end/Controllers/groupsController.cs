@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using back_end.Data;
 using back_end.Models;
+using AutoMapper;
 
 [ApiController]
 [Route("api/[controller]")]
 public class GroupsController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IMapper _mapper;
 
-    public GroupsController(AppDbContext db)
+    public GroupsController(AppDbContext db, IMapper mapper)
     {
         _db = db;
+        _mapper = mapper;
     }
 
 
@@ -42,6 +45,7 @@ public class GroupsController : ControllerBase
 
         _db.Groups.Add(group);
         await _db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetGroups), new { id = group.Id }, group);
+        var groupDto = _mapper.Map<GroupDto>(group);
+        return Created("", groupDto);
     }
 }
