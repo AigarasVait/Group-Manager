@@ -1,26 +1,34 @@
-import React from 'react';
 import './Navbar.css';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
-    const { logout } = useAuth();
+    const { logout, userId } = useAuth();
+
     return (
         <div className="navbarContainer">
             <nav className="navbar navbar-dark bg-light">
                 <div className="button-container">
-                    <ul className="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-row ">
+                    <ul className="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-row align-items-center">
                         <li className="nav-item me-3">
-                            <a className="nav-link active text-dark" href="/">Groups</a>
+                            <Link className="nav-link active text-dark" to="/">Groups</Link>
                         </li>
-                        
+
+                        <li className="nav-item me-3">
+                            <span className="nav-link active text-dark-emphasis">UserId: {userId}</span>
+                        </li>
+
                         <li className="nav-item ms-auto me-3">
-                            <a className="nav-link active text-dark" onClick={logout}>Logout</a>
+                            <button
+                                className="nav-link btn btn-link text-dark"
+                                onClick={logout}
+                            >
+                                Logout
+                            </button>
                         </li>
                     </ul>
-
                 </div>
             </nav>
         </div>
     );
-
 }

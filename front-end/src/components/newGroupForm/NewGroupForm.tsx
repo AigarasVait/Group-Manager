@@ -1,40 +1,64 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import type { GroupPost } from "../../types/Group";
+import type { GroupSimpleDto } from "../../types/Group";
 import "./NewGroupForm.css";
 
 interface NewGroupFormProps {
-    onCreate: (newGroupPost: GroupPost) => void;
+    onCreate: (newGroupPost: GroupSimpleDto) => void;
     onCancel: () => void;
-};
+}
 
 export default function NewGroupForm({ onCreate, onCancel }: NewGroupFormProps) {
     const [groupName, setGroupName] = useState("");
     const { userId } = useAuth();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const newGroupPost: GroupPost = {
-            name: groupName,
-            creatorId: userId
+        const trimmedName = groupName.trim();
+        if (!trimmedName || userId == null) return;
+
+        const newGroupPost: GroupSimpleDto = {
+            id: null,
+            name: trimmedName,
+            creatorId: userId,
+            balance: 0,
         };
 
         onCreate(newGroupPost);
         setGroupName("");
-    }
+    };
+
     return (
         <div className="form-container">
             <form onSubmit={handleSubmit} className="border border-grey p-3 rounded bg-light">
                 <div className="mb-3">
                     <label htmlFor="groupName" className="form-label">Group name</label>
-                    <input onChange={(e) => setGroupName(e.target.value)} type="text" className="form-control" id="groupName" />
+                    <input
+                        id="groupName"
+                        type="text"
+                        className="form-control"
+                        value={groupName}
+                        onChange={(e) => setGroupName(e.target.value)}
+                        required
+                    />
                 </div>
-                <div>
-                    <button type="submit" className="btn btn-primary">Create</button>
-                    <button type="button" onClick={onCancel} className="btn btn-danger ms-3">Cancel</button>
+                <div className="d-flex justify-content-end gap-2">
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={groupName.trim() === ""}
+                    >
+                        Create
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="btn btn-danger"
+                    >
+                        Cancel
+                    </button>
                 </div>
-
             </form>
         </div>
     );

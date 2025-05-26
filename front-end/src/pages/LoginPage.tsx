@@ -1,10 +1,10 @@
 import { useState } from "react";
 import "./LoginPage.css";
-import { validateLogin, createNewLogin } from "../api/memberAPI";
+import { validateLogin, createNewLogin } from "../api/membersAPI";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-//  This funtion is a simple login page component that allows users to enter their credentials
+//  This function is a simple login page component that allows users to enter their credentials
 //  and submit them for validation. It uses React hooks for state management 
 //  and handles form submission to validate the user's login credentials.
 //  It's also not secure in any way, so i would never use it in production.
@@ -24,36 +24,32 @@ export default function LoginPage() {
     const { login } = useAuth();
 
     const SignIn = async (e: React.FormEvent) => {
-        e.preventDefault();
-        validateLogin(credentials)
-            .then((response) => {
-                if (response.id) {
-                    login(response.id); 
-                    navigate("/");
-                } 
-            })
-            .catch((error) => {
-                console.error(error);
-                setErrorMessage("Invalid username or password, please try again.");
-            });
-        return false;
+    e.preventDefault();
+    try {
+        const response = await validateLogin(credentials);
+        if (response.id) {
+            login(response.id);
+            navigate("/");
+        }
+    } catch (error) {
+        console.error(error);
+        setErrorMessage("Invalid username or password, please try again.");
     }
+};
 
-    const Register = async (e: React.FormEvent) => {
-        e.preventDefault();
-        createNewLogin(credentials)
-            .then((response) => {
-                if (response.id) {
-                    login(response.id); 
-                    navigate("/");
-                } 
-            })
-            .catch((error) => {
-                console.error(error);
-                setErrorMessage("Registration failed: username taken.");
-            });
-        return false;
+const Register = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+        const response = await createNewLogin(credentials);
+        if (response.id) {
+            login(response.id);
+            navigate("/");
+        }
+    } catch (error) {
+        console.error(error);
+        setErrorMessage("Registration failed: username taken.");
     }
+};
 
     return (
         <div className="login-container">

@@ -11,5 +11,6 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Group> Groups => Set<Group>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<DebtTracker> DebtTrackers => Set<DebtTracker>();
     
 }

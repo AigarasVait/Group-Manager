@@ -1,6 +1,7 @@
-.group-container{
+.payment-container{
     padding-top: 90px;
     text-align: left;
+
 }
 
 .dark-overlay {
@@ -11,4 +12,10 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.2);
     z-index: 999;
+}
+
+.add-member-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center; 
 }
