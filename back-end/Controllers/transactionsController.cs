@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using back_end.Data;
-using back_end.Models;
+using back_end.Helper;  
 using AutoMapper;
 
 [ApiController]
@@ -20,23 +20,31 @@ public class TransactionsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto transaction )
     {
-        var group = new Group
+        var newTransaction = new Transaction
         {
-            Name = groupPost.Name
+            Amount = transaction.Amount,
+            Date = DateTime.Now, // only works if user is where the server is
+            Description = transaction.Description,
+            PayerId = transaction.PayerId,
+            GroupId = transaction.GroupId,
+            SType = transaction.SType,
+            SplitValues = transaction.SplitValues
         };
-        var creator = await _db.Users.FindAsync(groupPost.CreatorId);
-        if (creator != null)
+        
+        var group = await _db.Groups
+                            .Include(g => g.Members)
+                            .FirstOrDefaultAsync(g => g.Id == transaction.GroupId);
+        var payer = await _db.Users.FindAsync(transaction.PayerId);
+        if (group == null || payer == null)
         {
-            group.Members = [creator];
+            return BadRequest("Payer user not found in the group, or group does not exist.");
         }
-        else
-        {
-            return BadRequest("Creator user not found.");
-        }
+            
+        await TransactionSplitter.Split(newTransaction, group, payer, _db);
 
-        _db.Groups.Add(group);
+        _db.Transactions.Add(newTransaction);
         await _db.SaveChangesAsync();
-        var groupDto = _mapper.Map<GroupDto>(group);
-        return Created("", groupDto);
+        var transactionDto = _mapper.Map<TransactionDto>(newTransaction);
+        return Created("", transactionDto);
     }
 }

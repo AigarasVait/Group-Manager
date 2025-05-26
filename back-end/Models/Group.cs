@@ -12,10 +12,13 @@ public class Group
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
-    
+
     public List<User> Members { get; set; } = [];
-    
+
     public List<Transaction> Transactions { get; set; } = [];
+
+    [JsonIgnore]
+    public List<DebtTracker> DebtTrackers { get; set; } = [];
 }
 
 /*
@@ -24,15 +27,17 @@ public class Group
     
     The GroupPost class is used to represent posts made by users.
 */
-public class GroupPost
+public class GroupSimpleDto
 {
     public string Name { get; set; } = "";
     public int CreatorId { get; set; }
+    public decimal Balance { get; set; } = 0;
 }
 
 public class GroupDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
+    public List<UserDto> Members { get; set; } = [];
+    public List<TransactionDto> Transactions { get; set; } = [];
 }
-

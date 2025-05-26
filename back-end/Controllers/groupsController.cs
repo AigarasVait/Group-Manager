@@ -19,23 +19,46 @@ public class GroupsController : ControllerBase
 
 
     [HttpGet]
-public async Task<IActionResult> GetGroups([FromQuery] int userId)
-{
-    if (userId <= 0)
+    public async Task<IActionResult> GetGroups([FromQuery] int userId)
     {
-        return BadRequest($"Invalid user ID: {userId}");
+        if (userId <= 0)
+        {
+            return BadRequest($"Invalid user ID: {userId}");
+        }
+
+        var groups = await _db.Groups
+            .Include(g => g.Members)
+            .Where(g => g.Members.Any(m => m.Id == userId))
+            .ToListAsync();
+        var groupsDto = _mapper.Map<List<GroupDto>>(groups);
+        return Ok(groupsDto);
     }
 
-    var groups = await _db.Groups
-        .Include(g => g.Members)
-        .Where(g => g.Members.Any(m => m.Id == userId))
-        .ToListAsync();
-    var groupsDto = _mapper.Map<List<GroupDto>>(groups);
-    return Ok(groupsDto);
-}
+    [HttpGet("single")]
+    public async Task<IActionResult> GetGroups([FromQuery] int userId, int groupId)
+    {
+        if (userId <= 0 || groupId <= 0)
+        {
+            return BadRequest($"Invalid user ID: {userId} or group ID: {groupId}");
+        }
+
+        var group = await _db.Groups
+            .Include(g => g.Members)
+            .Include(g => g.Transactions)
+            .FirstOrDefaultAsync(g => g.Id == groupId && g.Members.Any(m => m.Id == userId));
+
+        if (group == null)
+        {
+            return NotFound($"Group with ID {groupId} not found for user with ID {userId}.");
+        }
+
+        var groupDto = _mapper.Map<GroupDto>(group);
+        return Ok(groupDto);
+    }
+        
 
     [HttpPost]
-    public async Task<IActionResult> CreateGroup([FromBody] GroupPost groupPost)
+    public async Task<IActionResult> CreateGroup([FromBody] GroupSimpleDto groupPost)
     {
         var group = new Group
         {
