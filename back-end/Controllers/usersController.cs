@@ -13,44 +13,51 @@ public class UsersController : ControllerBase
 
     public UsersController(AppDbContext db, IMapper mapper)
     {
-        _mapper = mapper;
         _db = db;
+        _mapper = mapper;
     }
 
-
+    /// <summary>
+    /// Validates username/password combo.
+    /// </summary>
     [HttpPost("validate")]
     public async Task<IActionResult> ValidateUser([FromBody] User user)
     {
+        // storing passwords in plain text is not safe, but for simplicity i did not hash them
         var existingUser = await _db.Users
             .FirstOrDefaultAsync(u => u.Username == user.Username && u.Password == user.Password);
 
-        if (existingUser != null)
-        {
-            var userDto = _mapper.Map<UserDto>(existingUser);
-            return Ok(userDto);
-        }
-        else
+        if (existingUser == null)
         {
             return Unauthorized("Invalid username or password.");
         }
+
+        var userDto = _mapper.Map<UserDto>(existingUser);
+        return Ok(userDto);
     }
 
+    /// <summary>
+    /// Creates a new user account.
+    /// </summary>
     [HttpPost("create")]
     public async Task<IActionResult> CreateUser([FromBody] User user)
     {
-        var duplicate = await _db.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
-        if (duplicate == null)
+        var isUsernameTaken = await _db.Users.AnyAsync(u => u.Username == user.Username);
+        if (isUsernameTaken)
         {
-            if(user.Name == "") user.Name = user.Username;
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
-            var userDto = _mapper.Map<UserDto>(user);
-            return Created("", userDto);
+            return BadRequest("Username is already taken.");
         }
-        else
-        {
-            return BadRequest("Username taken.");
-        }
-    }
 
+        // Default the name to the username if not provided
+        if (string.IsNullOrWhiteSpace(user.Name))
+        {
+            user.Name = user.Username;
+        }
+
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+
+        var userDto = _mapper.Map<UserDto>(user);
+        return Created("", userDto);
+    }
 }
