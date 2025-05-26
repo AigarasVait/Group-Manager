@@ -1,6 +1,7 @@
 import { API_GROUPS_ENDPOINT } from "../constants/apiEndpoints";
 import { apiFetch } from "./apiFetch";
 import type { GroupSimpleDto, GroupDto } from "../types/Group";
+import type { UserPatchDto } from "../types/User";
 
 async function getFetchLogic<T>(url: string): Promise<T> {
     const response = await apiFetch(url);
@@ -43,6 +44,25 @@ export async function postGroup(groupData: GroupSimpleDto): Promise<GroupSimpleD
         });
         if (!response.ok) {
             throw new Error(`Post error at ${API_GROUPS_ENDPOINT}: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Failed to fetch groups:", error);
+        throw error;
+    }
+}
+
+export async function patchGroupMember(groupId: number, user:UserPatchDto): Promise<GroupSimpleDto> {
+    try {
+        const response = await apiFetch(`${API_GROUPS_ENDPOINT}/${groupId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        });
+        if (!response.ok) {
+            throw new Error(`Patch error at ${API_GROUPS_ENDPOINT}: ${response.status}`);
         }
         return await response.json();
     } catch (error) {

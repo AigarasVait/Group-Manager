@@ -68,12 +68,29 @@ export default function GroupPage() {
                     <thead className="table-light">
                         <tr>
                             <th>Name</th>
+                            <th>Balance</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {groupInfo.members?.map((user) => (
                             <tr key={user.id}>
                                 <td className="fs-5">{user.name}</td>
+                                <td className="fs-5">{user.balance}</td>
+                                <td className="fs-5">
+                                    <button
+                                        className="btn btn-primary"
+                                        disabled={user.balance == 0}
+                                    >
+                                        Pay
+                                    </button>
+                                    <button
+                                        className="btn btn-danger"
+                                        disabled={user.balance != 0}
+                                    >
+                                        Remove
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

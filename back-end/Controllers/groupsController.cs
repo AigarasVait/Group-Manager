@@ -55,7 +55,7 @@ public class GroupsController : ControllerBase
         var groupDto = _mapper.Map<GroupDto>(group);
         return Ok(groupDto);
     }
-        
+
 
     [HttpPost]
     public async Task<IActionResult> CreateGroup([FromBody] GroupSimpleDto groupPost)
@@ -78,5 +78,35 @@ public class GroupsController : ControllerBase
         await _db.SaveChangesAsync();
         var groupDto = _mapper.Map<GroupDto>(group);
         return Created("", groupDto);
+    }
+    
+    [HttpPatch("{groupId}")]
+    public async Task<IActionResult> PatchGroup(int groupId, [FromBody] GroupPatchDto patch)
+    {
+        var group = await _db.Groups.Include(g => g.Members).FirstOrDefaultAsync(g => g.Id == groupId);
+        if (group == null) return NotFound();
+
+        if (patch.AddMemberUserId.HasValue)
+        {
+            var user = await _db.Users.FindAsync(patch.AddMemberUserId.Value);
+            if (user == null) return NotFound("User not found");
+
+            if (!group.Members.Any(u => u.Id == user.Id))
+            {
+                group.Members.Add(user);
+            }
+        }
+
+        if (patch.RemoveMemberUserId.HasValue)
+        {
+            var user = group.Members.FirstOrDefault(u => u.Id == patch.RemoveMemberUserId.Value);
+            if (user != null)
+            {
+                group.Members.Remove(user);
+            }
+        }
+
+        await _db.SaveChangesAsync();
+        return Ok(group);
     }
 }

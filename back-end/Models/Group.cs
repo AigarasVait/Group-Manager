@@ -41,3 +41,9 @@ public class GroupDto
     public List<UserDto> Members { get; set; } = [];
     public List<TransactionDto> Transactions { get; set; } = [];
 }
+
+public class GroupPatchDto
+{
+    public int? AddMemberUserId { get; set; }
+    public int? RemoveMemberUserId { get; set; }
+}

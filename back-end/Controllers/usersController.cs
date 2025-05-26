@@ -11,19 +11,12 @@ public class UsersController : ControllerBase
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
 
-    public UsersController(AppDbContext db,IMapper mapper)
+    public UsersController(AppDbContext db, IMapper mapper)
     {
         _mapper = mapper;
         _db = db;
     }
 
-
-    [HttpGet]
-    public async Task<IActionResult> GetGroups()
-    {
-        var groups = await _db.Groups.ToListAsync();
-        return Ok(groups);
-    }
 
     [HttpPost("validate")]
     public async Task<IActionResult> ValidateUser([FromBody] User user)
@@ -48,14 +41,16 @@ public class UsersController : ControllerBase
         var duplicate = await _db.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
         if (duplicate == null)
         {
+            user.Name ??= user.Username;
             _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-        var userDto = _mapper.Map<UserDto>(user);
-        return Created("", userDto);
+            await _db.SaveChangesAsync();
+            var userDto = _mapper.Map<UserDto>(user);
+            return Created("", userDto);
         }
         else
         {
             return BadRequest("Username taken.");
         }
     }
+
 }

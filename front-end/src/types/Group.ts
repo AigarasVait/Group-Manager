@@ -1,11 +1,11 @@
-import type { User } from './User';
+import type { UserDto } from './User';
 import type { TransactionDto } from './Transaction';
 import type { DebtTracker } from './DebtTracker';
 
 export interface GroupDto {
   id: number;
   name: string;
-  members: User[];
+  members: UserDto[];
   transactions: TransactionDto[];
   debtTracker: DebtTracker[];
 }
