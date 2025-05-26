@@ -4,7 +4,3 @@ export interface UserDto {
   balance?: number;
 }
 
-export interface UserPatchDto {
-  addMemberUserId?: number;
-  removeMemberUserId?: number;
-}

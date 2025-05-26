@@ -16,3 +16,10 @@ export interface GroupSimpleDto {
   creatorId: number | null;
   balance: number;
 }
+
+export interface GroupPatchDto {
+  addMemberUserId?: number;
+  removeMemberUserId?: number;
+  paidMemberUserId?: number;
+  fromMemberUserId?: number;
+}

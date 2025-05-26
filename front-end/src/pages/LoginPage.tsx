@@ -24,36 +24,32 @@ export default function LoginPage() {
     const { login } = useAuth();
 
     const SignIn = async (e: React.FormEvent) => {
-        e.preventDefault();
-        validateLogin(credentials)
-            .then((response) => {
-                if (response.id) {
-                    login(response.id); 
-                    navigate("/");
-                } 
-            })
-            .catch((error) => {
-                console.error(error);
-                setErrorMessage("Invalid username or password, please try again.");
-            });
-        return false;
+    e.preventDefault();
+    try {
+        const response = await validateLogin(credentials);
+        if (response.id) {
+            login(response.id);
+            navigate("/");
+        }
+    } catch (error) {
+        console.error(error);
+        setErrorMessage("Invalid username or password, please try again.");
     }
+};
 
-    const Register = async (e: React.FormEvent) => {
-        e.preventDefault();
-        createNewLogin(credentials)
-            .then((response) => {
-                if (response.id) {
-                    login(response.id); 
-                    navigate("/");
-                } 
-            })
-            .catch((error) => {
-                console.error(error);
-                setErrorMessage("Registration failed: username taken.");
-            });
-        return false;
+const Register = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+        const response = await createNewLogin(credentials);
+        if (response.id) {
+            login(response.id);
+            navigate("/");
+        }
+    } catch (error) {
+        console.error(error);
+        setErrorMessage("Registration failed: username taken.");
     }
+};
 
     return (
         <div className="login-container">

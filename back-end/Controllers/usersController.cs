@@ -41,7 +41,7 @@ public class UsersController : ControllerBase
         var duplicate = await _db.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
         if (duplicate == null)
         {
-            user.Name ??= user.Username;
+            if(user.Name == "") user.Name = user.Username;
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
             var userDto = _mapper.Map<UserDto>(user);

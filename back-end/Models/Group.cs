@@ -27,10 +27,18 @@ public class Group
     
     The GroupPost class is used to represent posts made by users.
 */
-public class GroupSimpleDto
+
+public class GroupPostDto
 {
     public string Name { get; set; } = "";
     public int CreatorId { get; set; }
+
+}
+
+public class GroupSimpleDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
     public decimal Balance { get; set; } = 0;
 }
 
@@ -46,4 +54,6 @@ public class GroupPatchDto
 {
     public int? AddMemberUserId { get; set; }
     public int? RemoveMemberUserId { get; set; }
+    public int? PaidMemberUserId { get; set; }
+    public int? FromMemberUserId { get; set; }
 }

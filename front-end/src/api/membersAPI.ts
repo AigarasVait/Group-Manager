@@ -1,42 +1,26 @@
 import { API_USERS_ENDPOINT } from "../constants/apiEndpoints";
 import { apiFetch } from "./apiFetch";
 
+async function postUserFetch<T>(path: string, credentials: { username: string; password: string }): Promise<T> {
+  const response = await apiFetch(`${API_USERS_ENDPOINT}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
 
-export async function validateLogin(credentials: { username: string, password: string }): Promise<{ id: number }> {
-    try {
-        const response = await apiFetch((API_USERS_ENDPOINT + "/validate"), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(credentials)
-        });
+  if (!response.ok) {
+    // Customize error message based on endpoint
+    const errorMsg = path === "/validate" ? "Login failed" : "Error creating new login: User already exists";
+    throw new Error(errorMsg);
+  }
 
-        if (!response.ok) {
-            throw new Error(`Login failed`);
-        }
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
+  return response.json() as Promise<T>;
 }
 
-export async function createNewLogin(credentials: { username: string, password: string }): Promise<{ id: number }> {
-    try {
-        const response = await apiFetch((API_USERS_ENDPOINT + "/create"), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(credentials)
-        });
+export async function validateLogin(credentials: { username: string; password: string }): Promise<{ id: number }> {
+  return postUserFetch<{ id: number }>("/validate", credentials);
+}
 
-        if (!response.ok) {
-            throw new Error(`Error creating new login: User already exists`);
-        }
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
-
+export async function createNewLogin(credentials: { username: string; password: string }): Promise<{ id: number }> {
+  return postUserFetch<{ id: number }>("/create", credentials);
 }

@@ -1,72 +1,86 @@
 import { API_GROUPS_ENDPOINT } from "../constants/apiEndpoints";
 import { apiFetch } from "./apiFetch";
-import type { GroupSimpleDto, GroupDto } from "../types/Group";
-import type { UserPatchDto } from "../types/User";
+import type { GroupSimpleDto, GroupDto, GroupPatchDto } from "../types/Group";
 
-async function getFetchLogic<T>(url: string): Promise<T> {
-    const response = await apiFetch(url);
+/**
+ * Core fetch helper.
+ */
+async function fetchWithErrorHandling<T>(url: string, options?: RequestInit): Promise<T> {
+    const response = await apiFetch(url, options);
+
     if (!response.ok) {
-        const message = await response.text();
-        throw new Error(`Fetch error at ${API_GROUPS_ENDPOINT}: ${message}`);
+        const errorText = await response.text();
+        throw new Error(`API error at ${url}: ${errorText}`);
     }
-    const data = await response.json();
-    return data as T;
+
+    return response.json() as Promise<T>;
 }
 
+/**
+ * Fetches all groups for a given user.
+ * Throws if userId is null to prevent invalid request.
+ */
 export async function fetchGroups(userId: number | null): Promise<GroupSimpleDto[]> {
+    if (userId === null) {
+        throw new Error("User ID must be provided to fetch groups.");
+    }
+
+    const url = `${API_GROUPS_ENDPOINT}?userId=${userId}`;
     try {
-        const url = `${API_GROUPS_ENDPOINT}?userId=${userId}`;
-        return await getFetchLogic<GroupSimpleDto[]>(url);
+        return await fetchWithErrorHandling<GroupSimpleDto[]>(url);
     } catch (error) {
         console.error("Failed to fetch groups:", error);
         throw error;
     }
 }
 
+/**
+ * Fetches information for a single group by ID.
+ * Throws if userId or groupId is null to prevent invalid request.
+ */
 export async function fetchSingleGroup(userId: number | null, groupId: number | null): Promise<GroupDto> {
+    if (userId === null || groupId === null) {
+        throw new Error("User ID and Group ID must be provided to fetch a single group.");
+    }
+
+    const url = `${API_GROUPS_ENDPOINT}/single?userId=${userId}&groupId=${groupId}`;
     try {
-        const url = `${API_GROUPS_ENDPOINT}/single?userId=${userId}&groupId=${groupId}`;
-        return await getFetchLogic<GroupDto>(url);
+        return await fetchWithErrorHandling<GroupDto>(url);
     } catch (error) {
         console.error("Failed to fetch group:", error);
         throw error;
     }
 }
 
+/**
+ * Creates a new group on the server.
+ */
 export async function postGroup(groupData: GroupSimpleDto): Promise<GroupSimpleDto> {
     try {
-        const response = await apiFetch(API_GROUPS_ENDPOINT, {
+        return await fetchWithErrorHandling<GroupSimpleDto>(API_GROUPS_ENDPOINT, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(groupData)
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(groupData),
         });
-        if (!response.ok) {
-            throw new Error(`Post error at ${API_GROUPS_ENDPOINT}: ${response.status}`);
-        }
-        return await response.json();
     } catch (error) {
-        console.error("Failed to fetch groups:", error);
+        console.error("Failed to create group:", error);
         throw error;
     }
 }
 
-export async function patchGroupMember(groupId: number, user:UserPatchDto): Promise<GroupSimpleDto> {
+/**
+ * Patches group members by adding or removing user IDs.
+ * `patchData` contains the partial update object.
+ */
+export async function patchGroupMember(groupId: number, patchData: GroupPatchDto): Promise<GroupSimpleDto> {
     try {
-        const response = await apiFetch(`${API_GROUPS_ENDPOINT}/${groupId}`, {
+        return await fetchWithErrorHandling<GroupSimpleDto>(`${API_GROUPS_ENDPOINT}/${groupId}`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(user)
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(patchData),
         });
-        if (!response.ok) {
-            throw new Error(`Patch error at ${API_GROUPS_ENDPOINT}: ${response.status}`);
-        }
-        return await response.json();
     } catch (error) {
-        console.error("Failed to fetch groups:", error);
+        console.error("Failed to patch group members:", error);
         throw error;
     }
 }

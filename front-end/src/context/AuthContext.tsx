@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -10,14 +10,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // Initialize from localStorage, default false
-    return localStorage.getItem('isLoggedIn') === 'true';
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
   const [userId, setUserId] = useState<number | null>(() => {
     const savedUserId = localStorage.getItem('userId');
     return savedUserId ? Number(savedUserId) : null;
   });
+
+  
+  useEffect(() => {
+    function handleStorageChange(event: StorageEvent) {
+      if (event.key === 'isLoggedIn') {
+        setIsLoggedIn(event.newValue === 'true');
+      }
+      if (event.key === 'userId') {
+        setUserId(event.newValue ? Number(event.newValue) : null);
+      }
+    }
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const login = (id: number) => {
     setIsLoggedIn(true);
@@ -33,11 +44,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('userId');
   };
 
-  return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout, userId }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  // Memoized value not have to log in again after page reload
+  const value = useMemo(() => ({ isLoggedIn, login, logout, userId }), [isLoggedIn, userId]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

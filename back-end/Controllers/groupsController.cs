@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using back_end.Data;
 using back_end.Models;
 using AutoMapper;
+using back_end.Helper;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -28,14 +29,20 @@ public class GroupsController : ControllerBase
 
         var groups = await _db.Groups
             .Include(g => g.Members)
+            .Include(g => g.DebtTrackers)
             .Where(g => g.Members.Any(m => m.Id == userId))
             .ToListAsync();
-        var groupsDto = _mapper.Map<List<GroupDto>>(groups);
+        var groupsDto = _mapper.Map<List<GroupSimpleDto>>(groups);
+        for (int i = 0; i < groupsDto.Count; i++)
+        {
+            groupsDto[i].Balance = BalanceCalculator.Total(groups[i], userId);
+        }
         return Ok(groupsDto);
     }
 
+
     [HttpGet("single")]
-    public async Task<IActionResult> GetGroups([FromQuery] int userId, int groupId)
+    public async Task<IActionResult> GetGroup([FromQuery] int userId, int groupId)
     {
         if (userId <= 0 || groupId <= 0)
         {
@@ -45,6 +52,7 @@ public class GroupsController : ControllerBase
         var group = await _db.Groups
             .Include(g => g.Members)
             .Include(g => g.Transactions)
+            .Include(g => g.DebtTrackers)
             .FirstOrDefaultAsync(g => g.Id == groupId && g.Members.Any(m => m.Id == userId));
 
         if (group == null)
@@ -53,12 +61,13 @@ public class GroupsController : ControllerBase
         }
 
         var groupDto = _mapper.Map<GroupDto>(group);
+        groupDto.Members.ToList().ForEach(m => m.Balance = BalanceCalculator.Personal(group, userId, m.Id));
         return Ok(groupDto);
     }
 
 
     [HttpPost]
-    public async Task<IActionResult> CreateGroup([FromBody] GroupSimpleDto groupPost)
+    public async Task<IActionResult> CreateGroup([FromBody] GroupPostDto groupPost)
     {
         var group = new Group
         {
@@ -79,11 +88,15 @@ public class GroupsController : ControllerBase
         var groupDto = _mapper.Map<GroupDto>(group);
         return Created("", groupDto);
     }
-    
+
+
     [HttpPatch("{groupId}")]
     public async Task<IActionResult> PatchGroup(int groupId, [FromBody] GroupPatchDto patch)
     {
-        var group = await _db.Groups.Include(g => g.Members).FirstOrDefaultAsync(g => g.Id == groupId);
+        var group = await _db.Groups
+        .Include(g => g.Members)
+        .Include(g => g.DebtTrackers)
+        .FirstOrDefaultAsync(g => g.Id == groupId);
         if (group == null) return NotFound();
 
         if (patch.AddMemberUserId.HasValue)
@@ -97,13 +110,34 @@ public class GroupsController : ControllerBase
             }
         }
 
-        if (patch.RemoveMemberUserId.HasValue)
+        else if (patch.RemoveMemberUserId.HasValue)
         {
             var user = group.Members.FirstOrDefault(u => u.Id == patch.RemoveMemberUserId.Value);
             if (user != null)
             {
+                bool debt = group.DebtTrackers.Any(dt =>
+                    (dt.FromUserId == user.Id || dt.ToUserId == user.Id) && dt.Amount != 0
+                    );
+                if (debt)
+                {
+                    return BadRequest("Cannot remove user with outstanding debts.");
+                }
+                group.DebtTrackers.RemoveAll(dt => dt.FromUserId == user.Id || dt.ToUserId == user.Id);
                 group.Members.Remove(user);
             }
+        }
+
+        else if (patch.PaidMemberUserId.HasValue && patch.FromMemberUserId.HasValue)
+        {
+            DebtTracker? tracker = group.DebtTrackers
+                .FirstOrDefault(dt => dt.FromUserId == patch.PaidMemberUserId.Value
+                || dt.ToUserId == patch.PaidMemberUserId.Value);
+            if (tracker == null) return BadRequest("No valid debt found.");
+            tracker.Amount = 0;
+        }
+        else
+        {
+            return BadRequest("No valid patch operation provided.");
         }
 
         await _db.SaveChangesAsync();
