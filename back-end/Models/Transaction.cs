@@ -14,9 +14,30 @@ public class Transaction
     public DateTime Date { get; set; }
     public decimal Amount { get; set; }
 
-    public int PayerId { get; set; }
+    public SplitType SType { get; set; } 
+    public decimal?[] SplitValues { get; set; } = null;
+
+    public int PayerId
+    { get; set; }
     public User Payer { get; set; } = null!;
 
     public int GroupId { get; set; }
     public Group Group { get; set; } = null!;
+}
+
+public enum SplitType
+{
+    0 = Equal,
+    1 = Dynamic,
+    2 = Percentage
+}
+
+public class TransactionCreateDto
+{
+    public string Description { get; set; } = "";
+    public decimal Amount { get; set; }
+    public SplitType SType { get; set; } 
+    public decimal?[] SplitValues { get; set; } = null;
+    public int PayerId{ get; set; }
+    public int GroupId { get; set; }
 }

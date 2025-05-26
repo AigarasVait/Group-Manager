@@ -1,10 +1,10 @@
 import { useState } from "react";
 import "./LoginPage.css";
-import { validateLogin, createNewLogin } from "../api/memberAPI";
+import { validateLogin, createNewLogin } from "../api/membersAPI";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-//  This funtion is a simple login page component that allows users to enter their credentials
+//  This function is a simple login page component that allows users to enter their credentials
 //  and submit them for validation. It uses React hooks for state management 
 //  and handles form submission to validate the user's login credentials.
 //  It's also not secure in any way, so i would never use it in production.

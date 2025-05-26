@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import type { GroupPost } from "../../types/Group";
+import type { GroupSimpleDto } from "../../types/Group";
 import "./NewGroupForm.css";
 
 interface NewGroupFormProps {
-    onCreate: (newGroupPost: GroupPost) => void;
+    onCreate: (newGroupPost: GroupSimpleDto) => void;
     onCancel: () => void;
 };
 
@@ -15,9 +15,11 @@ export default function NewGroupForm({ onCreate, onCancel }: NewGroupFormProps) 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const newGroupPost: GroupPost = {
+        const newGroupPost: GroupSimpleDto = {
+            id: null,
             name: groupName,
-            creatorId: userId
+            creatorId: userId,
+            balance: 0
         };
 
         onCreate(newGroupPost);
@@ -28,7 +30,13 @@ export default function NewGroupForm({ onCreate, onCancel }: NewGroupFormProps) 
             <form onSubmit={handleSubmit} className="border border-grey p-3 rounded bg-light">
                 <div className="mb-3">
                     <label htmlFor="groupName" className="form-label">Group name</label>
-                    <input onChange={(e) => setGroupName(e.target.value)} type="text" className="form-control" id="groupName" />
+                    <input
+                        onChange={(e) => setGroupName(e.target.value)}
+                        type="text"
+                        className="form-control"
+                        id="groupName"
+                        required
+                    />
                 </div>
                 <div>
                     <button type="submit" className="btn btn-primary">Create</button>

@@ -1,10 +1,18 @@
-export interface Group {
+import type { User } from './User';
+import type { TransactionDto } from './Transaction';
+import type { DebtTracker } from './DebtTracker';
+
+export interface GroupDto {
   id: number;
   name: string;
-  balance: number;
+  members: User[];
+  transactions: TransactionDto[];
+  debtTracker: DebtTracker[];
 }
 
-export interface GroupPost {
+export interface GroupSimpleDto {
+  id: number | null;
   name: string;
   creatorId: number | null;
+  balance: number;
 }
