@@ -2,12 +2,9 @@ using System.Text.Json.Serialization;
 using back_end.Models;
 
 /*
-    This class represents a transaction in the system.
-    Each transaction has an ID, a description, a date, an amount, a payer (user), and a group.
-    The Transaction class is used to manage the financial transactions within a group.
-    The Payer property is a reference to the User class, which represents the user who made the transaction.
+    Represents a financial transaction within a group.
+    Includes details about the amount, payer, and how the cost is split.
 */
-
 public class Transaction
 {
     public int Id { get; set; }
@@ -16,6 +13,8 @@ public class Transaction
     public decimal Amount { get; set; }
 
     public SplitType SType { get; set; }
+    
+    // Split values correspond to members of the group, length should match members count.
     public decimal[] SplitValues { get; set; } = null!;
 
     public int PayerId { get; set; }
@@ -29,11 +28,14 @@ public class Transaction
 
 public enum SplitType
 {
-    Equal = 0,
-    Dynamic = 1,
-    Percentage = 2
+    Equal = 0,       // Even split among members
+    Dynamic = 1,     // Custom amounts per member
+    Percentage = 2   // Percent-based split
 }
 
+/*
+    DTO for creating a new transaction.
+*/
 public class TransactionCreateDto
 {
     public string Description { get; set; } = "";
@@ -44,12 +46,18 @@ public class TransactionCreateDto
     public int GroupId { get; set; }
 }
 
+/*
+    DTO representing a transaction returned by API.
+    Note: Group is included fully here — consider mapping a lighter Group DTO to avoid overfetching.
+*/
 public class TransactionDto
 {
     public int Id { get; set; }
     public string Description { get; set; } = "";
     public decimal Amount { get; set; }
-      public DateTime Date { get; set; }
+    public DateTime Date { get; set; }
     public int PayerId { get; set; }
+
+    // Consider changing this to a lighter DTO for safer serialization
     public Group Group { get; set; } = null!;
 }
