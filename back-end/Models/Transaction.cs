@@ -15,7 +15,7 @@ public class Transaction
     public SplitType SType { get; set; }
     
     // Split values correspond to members of the group, length should match members count.
-    public decimal[] SplitValues { get; set; } = null!;
+    public decimal[]? SplitValues { get; set; } = null;
 
     public int PayerId { get; set; }
     [JsonIgnore]
