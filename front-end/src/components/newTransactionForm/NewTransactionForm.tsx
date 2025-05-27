@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import type { TransactionCreateDto } from "../../types/Transaction";
 import type { GroupDto } from "../../types/Group";
 import "./NewTransactionForm.css";
@@ -8,14 +7,15 @@ interface NewGroupFormProps {
   onCreate: (newTransaction: TransactionCreateDto) => void;
   onCancel: () => void;
   group?: GroupDto;
+  from: number | null;
 }
 
 export default function NewGroupForm({
   onCreate,
   onCancel,
   group,
+  from
 }: NewGroupFormProps) {
-  const { userId } = useAuth();
 
   const [amountIn, setAmountIn] = useState(0);
   const membersCount = group?.members.length || 0;
@@ -44,10 +44,12 @@ export default function NewGroupForm({
       alert("Numbers in dynamic split must sum to the total amount.");
       return;
     }
+     
+    console.error(from);
 
     const newTransaction: TransactionCreateDto = {
       groupId: group?.id || null,
-      payerId: userId,
+      payerId: from,
       amount: amountIn,
       description: descriptionItem,
       sType: splitTypeItem,
