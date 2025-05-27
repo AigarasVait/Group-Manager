@@ -14,6 +14,7 @@ export default function GroupPage() {
     const { groupId } = useParams();
     const navigate = useNavigate();
     const { userId, isLoggedIn } = useAuth();
+    const [formUser, setFormUser] = useState<number>(0);
 
     const [groupInfo, setGroupInfo] = useState<GroupDto | null>(null);
     const [open, setOpen] = useState(false);
@@ -59,7 +60,7 @@ export default function GroupPage() {
             console.error("Failed to add Transaction:", err);
         }
 
-        window.location.reload(); // Needed for updated balances
+        window.location.reload(); // Needed for updated balances, should have made the API return members or something simmilar.
         setOpen(false);
     };
 
@@ -157,13 +158,22 @@ export default function GroupPage() {
                                     <button
                                         className="btn btn-primary"
                                         disabled={user.balance! >= 0}
-                                        onClick={() => handleMarkAsPaid(user.id)}
+                                        onClick={() => {handleMarkAsPaid(user.id);}}
                                     >
                                         Pay
                                     </button>
                                     <button
+                                        onClick={() => {
+                                            setOpen(true);
+                                            setFormUser(user.id);
+                                        }}
+                                        className="btn btn-primary"
+                                    >
+                                        Add new Payment
+                                    </button>
+                                    <button
                                         className="btn btn-danger"
-                                        onClick={() => handleRemoveMember(user.id)}
+                                        onClick={() => {handleRemoveMember(user.id);}}
                                     >
                                         Remove
                                     </button>
@@ -177,12 +187,6 @@ export default function GroupPage() {
             {/* Transactions */}
             <div className="d-flex justify-content-between pt-3 pb-1 mx-3">
                 <p className="h4">Payments:</p>
-                <button
-                    onClick={() => setOpen(true)}
-                    className="btn btn-primary"
-                >
-                    Add new Payment
-                </button>
             </div>
 
             <div className="table-responsive mx-3">
@@ -220,8 +224,12 @@ export default function GroupPage() {
                     <div className="dark-overlay" />
                     <NewTransactionForm
                         onCreate={handleCreateTransaction}
-                        onCancel={() => setOpen(false)}
+                        onCancel={() => {
+                            setOpen(false);
+                            setFormUser(0);
+                        }}
                         group={groupInfo}
+                        from={formUser}
                     />
                 </>
             )}
