@@ -9,7 +9,7 @@ namespace back_end.Helper
         /// Positive value means `userId` is owed money by `otherId`.
         /// Negative value means `userId` owes money to `otherId`.
         /// </summary>
-        public static decimal Personal(Group group, int? userId, int? otherId)
+        public static decimal Personal(Group? group, int? userId, int? otherId)
         {
             if (group == null || userId == null || otherId == null)
                 throw new ArgumentNullException("Group or Users cannot be null.");
