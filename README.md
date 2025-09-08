@@ -1,17 +1,33 @@
-# Group-Manager
-Technical assignment for a candidate for an internship developer position at the IDT team
+# Group-Manager 2025-05-27
+
+Developed full-stack Group Manager app for collaborative expense tracking
+
+Built React + TypeScript front-end with modular components and authentication
+
+Created ASP.NET Core back-end with Entity Framework and AutoMapper
+
+Implemented group, member, and transaction management with real-time balances
+
+Showcased skills in web development, API design, and team-based software engineering
 
 ## Runing fronted and backend
 
 To run front-end:
+
 cd front-end/
+
 npm ci
+
 npm run dev
 
 To run back-end:
+
 cd back-end/
+
 dotnet restore
+
 dotnet run
+
 
 ## Pre-seeded user information for testing
 

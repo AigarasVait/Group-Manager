@@ -39,7 +39,7 @@ export default function GroupPage() {
         };
 
         fetchGroup();
-    }, [groupId, userId]);
+    }, [groupId, userId, isLoggedIn, navigate]);
 
     if (!groupInfo) {
         return <p className="mx-3 mt-4">Loading group...</p>;
